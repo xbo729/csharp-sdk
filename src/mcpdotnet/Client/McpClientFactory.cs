@@ -89,6 +89,8 @@ public class McpClientFactory
         return client;
     }
 
+    internal Func<McpServerConfig, IMcpTransport> TransportFactoryMethod => _transportFactoryMethod;
+
     private IMcpTransport CreateTransport(McpServerConfig config)
     {
         var options = string.Join(", ", config.TransportOptions?.Select(kv => $"{kv.Key}={kv.Value}") ?? Enumerable.Empty<string>());
@@ -104,8 +106,29 @@ public class McpClientFactory
                     .Where(kv => kv.Key.StartsWith("env:"))
                     .ToDictionary(kv => kv.Key.Substring(4), kv => kv.Value)
             }, config, _loggerFactory),
+            "sse" or "http" => new SseTransport(
+               new SseTransportOptions
+               {
+                   ConnectionTimeout = TimeSpan.FromSeconds(ParseOrDefault(config.TransportOptions, "connectionTimeout", 30)),
+                   MaxReconnectAttempts = ParseOrDefault(config.TransportOptions, "maxReconnectAttempts", 3),
+                   ReconnectDelay = TimeSpan.FromSeconds(ParseOrDefault(config.TransportOptions, "reconnectDelay", 5)),
+                   AdditionalHeaders = config.TransportOptions?
+                       .Where(kv => kv.Key.StartsWith("header."))
+                       .ToDictionary(kv => kv.Key.Substring(7), kv => kv.Value)
+               }, config, _loggerFactory),
             _ => throw new ArgumentException($"Unsupported transport type '{config.TransportType}'.", nameof(config))
         };
+    }
+
+    private static int ParseOrDefault(IDictionary<string, string>? options, string key, int defaultValue)
+    {
+        if (options?.TryGetValue(key, out var value) ?? false)
+        {
+            if (!int.TryParse(value, out var result))
+                throw new FormatException($"Invalid value '{value}' for option '{key}'");
+            return result;
+        }
+        return defaultValue;
     }
 
     private string GetCommand(McpServerConfig config)
