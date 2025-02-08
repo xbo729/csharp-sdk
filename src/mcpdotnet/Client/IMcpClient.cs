@@ -71,7 +71,7 @@ public interface IMcpClient : IAsyncDisposable
     /// <param name="arguments">Optional arguments for the tool.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>A task containing the tool's response.</returns>
-    Task<CallToolResponse> CallToolAsync(string toolName, Dictionary<string, object>? arguments = null, CancellationToken cancellationToken = default);
+    Task<CallToolResponse> CallToolAsync(string toolName, Dictionary<string, object> arguments, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves a list of available prompts from the server.
@@ -134,8 +134,8 @@ public interface IMcpClient : IAsyncDisposable
 
     /// <summary>
     /// Sends a generic JSON-RPC request to the server.
-    /// NB! This is a temporary method that is available to send not yet implemented feature messages. 
-    /// Once all MCP features are implemented this will be made private, as it is purely a convenience for those who wish to implement features ahead of the library.
+    /// It is strongly recommended use the capability-specific methods instead of this one.
+    /// Use this method for custom requests or those not yet covered explicitly by the client.
     /// </summary>
     /// <typeparam name="T">The expected response type.</typeparam>
     /// <param name="request">The JSON-RPC request to send.</param>

@@ -1,4 +1,6 @@
 ﻿using System.Threading.Channels;
+using Microsoft.Extensions.Logging;
+using McpDotNet.Logging;
 using McpDotNet.Protocol.Messages;
 
 namespace McpDotNet.Protocol.Transport;
@@ -6,15 +8,16 @@ namespace McpDotNet.Protocol.Transport;
 /// <summary>
 /// Base class for implementing MCP transports with common functionality.
 /// </summary>
-public abstract class TransportBase : IMcpTransport
+public abstract class TransportBase : ITransport
 {
     private readonly Channel<IJsonRpcMessage> _messageChannel;
+    private readonly ILogger<TransportBase> _logger;
     private bool _isConnected;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TransportBase"/> class.
     /// </summary>
-    protected TransportBase()
+    protected TransportBase(ILoggerFactory loggerFactory)
     {
         // Unbounded channel to prevent blocking on writes
         _messageChannel = Channel.CreateUnbounded<IJsonRpcMessage>(new UnboundedChannelOptions
@@ -22,6 +25,7 @@ public abstract class TransportBase : IMcpTransport
             SingleReader = true,
             SingleWriter = true,
         });
+        _logger = loggerFactory.CreateLogger<TransportBase>();
     }
 
     /// <inheritdoc/>
@@ -29,9 +33,6 @@ public abstract class TransportBase : IMcpTransport
 
     /// <inheritdoc/>
     public ChannelReader<IJsonRpcMessage> MessageReader => _messageChannel.Reader;
-
-    /// <inheritdoc/>
-    public abstract Task ConnectAsync(CancellationToken cancellationToken = default);
 
     /// <inheritdoc/>
     public abstract Task SendMessageAsync(IJsonRpcMessage message, CancellationToken cancellationToken = default);
@@ -51,7 +52,9 @@ public abstract class TransportBase : IMcpTransport
             throw new McpTransportException("Transport is not connected");
         }
 
+        _logger.TransportWritingMessageToChannel(message);
         await _messageChannel.Writer.WriteAsync(message, cancellationToken);
+        _logger.TransportMessageWrittenToChannel();
     }
 
     /// <summary>
