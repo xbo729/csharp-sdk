@@ -1,6 +1,7 @@
 ﻿using McpDotNet.Client;
 using McpDotNet.Configuration;
 using McpDotNet.Protocol.Messages;
+using McpDotNet.Protocol.Transport;
 using McpDotNet.Protocol.Types;
 
 namespace McpDotNet.Tests;
@@ -151,7 +152,7 @@ public class ClientIntegrationTests : IClassFixture<ClientIntegrationTestFixture
         // act
         var client = await _fixture.Factory.GetClientAsync("everything");
 
-        List<Resource> allResources = new();
+        List<Resource> allResources = [];
         string? cursor = null;
         do
         {
@@ -267,7 +268,7 @@ public class ClientIntegrationTests : IClassFixture<ClientIntegrationTestFixture
         {
             Id = "everything",
             Name = "Everything",
-            TransportType = "stdio",
+            TransportType = TransportTypes.StdIo,
             TransportOptions = new Dictionary<string, string>
             {
                 ["command"] = "npx",
@@ -335,7 +336,7 @@ public class ClientIntegrationTests : IClassFixture<ClientIntegrationTestFixture
         {
             Id = "everything",
             Name = "everything",
-            TransportType = "stdio",
+            TransportType = TransportTypes.StdIo,
             TransportOptions = new Dictionary<string, string>
             {
                 ["command"] = "npx",
@@ -394,7 +395,7 @@ public class ClientIntegrationTests : IClassFixture<ClientIntegrationTestFixture
         {
             Id = "everything",
             Name = "everything",
-            TransportType = "stdio",
+            TransportType = TransportTypes.StdIo,
             TransportOptions = new Dictionary<string, string>
             {
                 ["command"] = "npx",
@@ -429,7 +430,7 @@ public class ClientIntegrationTests : IClassFixture<ClientIntegrationTestFixture
         {
             Id = "memory",
             Name = "memory",
-            TransportType = "stdio",
+            TransportType = TransportTypes.StdIo,
             TransportOptions = new Dictionary<string, string>
             {
                 ["command"] = "npx",
@@ -450,7 +451,7 @@ public class ClientIntegrationTests : IClassFixture<ClientIntegrationTestFixture
         // act
         var result = await client.CallToolAsync(
             "read_graph",
-            new Dictionary<string, object>(),
+            [],
             CancellationToken.None
         );
 

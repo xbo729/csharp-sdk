@@ -108,7 +108,7 @@ internal class Program
 
         server.CallToolHandler = async (request, cancellationToken) =>
         {
-            if (request.Name == "echo")
+            if (request?.Name == "echo")
             {
                 if (request.Arguments is null || !request.Arguments.TryGetValue("message", out var message))
                 {
@@ -119,7 +119,7 @@ internal class Program
                     Content = [new Content() { Text = "Echo: " + message.ToString(), Type = "text" }]
                 };
             }
-            else if (request.Name == "sampleLLM")
+            else if (request?.Name == "sampleLLM")
             {
                 if (request.Arguments is null ||
                     !request.Arguments.TryGetValue("prompt", out var prompt) ||
@@ -137,14 +137,14 @@ internal class Program
             }
             else
             {
-                throw new McpServerException($"Unknown tool: {request.Name}");
+                throw new McpServerException($"Unknown tool: {request?.Name}");
             }
         };
         #endregion
 
         #region Resources
-        List<Resource> resources = new();
-        List<ResourceContents> resourceContents = new();
+        List<Resource> resources = [];
+        List<ResourceContents> resourceContents = [];
         for (int i = 0; i < 100; ++i)
         {
             string uri = $"test://static/resource/{i + 1}";
@@ -216,15 +216,14 @@ internal class Program
 
         server.ReadResourceHandler = (request, cancellationToken) =>
         {
-            if (request.Uri is null)
+            if (request?.Uri is null)
             {
                 throw new McpServerException("Missing required argument 'uri'");
             }
-            ResourceContents? contents = resourceContents.FirstOrDefault(r => r.Uri == request.Uri);
-            if (contents is null)
-            {
-                throw new McpServerException("Resource not found");
-            }
+
+            ResourceContents contents = resourceContents.FirstOrDefault(r => r.Uri == request.Uri)
+                ?? throw new McpServerException("Resource not found");
+
             return Task.FromResult(new ReadResourceResult()
             {
                 Contents = [contents]
@@ -247,8 +246,8 @@ internal class Program
                     {
                         Name = "complex_prompt",
                         Description = "A prompt with arguments",
-                        Arguments = new()
-                        {
+                        Arguments =
+                        [
                             new PromptArgument()
                             {
                                 Name = "temperature",
@@ -261,7 +260,7 @@ internal class Program
                                 Description = "Output style",
                                 Required = false
                             }
-                        }
+                        ]
                     }
                 ]
             });
@@ -269,8 +268,8 @@ internal class Program
 
         server.GetPromptHandler = (request, cancellationToken) =>
         {
-            List<PromptMessage> messages = new();
-            if (request.Name == "simple_prompt")
+            List<PromptMessage> messages = [];
+            if (request?.Name == "simple_prompt")
             {
                 messages.Add(new PromptMessage()
                 {
@@ -282,7 +281,7 @@ internal class Program
                     }
                 });
             }
-            else if (request.Name == "complex_prompt")
+            else if (request?.Name == "complex_prompt")
             {
                 string temperature = request.Arguments?["temperature"]?.ToString() ?? "unknown";
                 string style = request.Arguments?["style"]?.ToString() ?? "unknown";
@@ -317,7 +316,7 @@ internal class Program
             }
             else
             {
-                throw new McpServerException($"Unknown prompt: {request.Name}");
+                throw new McpServerException($"Unknown prompt: {request?.Name}");
             }
 
             return Task.FromResult(new GetPromptResult()

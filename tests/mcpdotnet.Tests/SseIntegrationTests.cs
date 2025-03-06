@@ -32,8 +32,8 @@ public class SseIntegrationTests
         {
             Id = "test_server",
             Name = "In-memory Test Server",
-            TransportType = "sse",
-            TransportOptions = new Dictionary<string, string>(),
+            TransportType = TransportTypes.Sse,
+            TransportOptions = [],
             Location = "http://localhost:5000/sse"
         };
 
@@ -75,8 +75,8 @@ public class SseIntegrationTests
         {
             Id = "everything",
             Name = "Everything",
-            TransportType = "sse",
-            TransportOptions = new Dictionary<string, string>(),
+            TransportType = TransportTypes.Sse,
+            TransportOptions = [],
             Location = "http://localhost:3001/sse"
         };
 
@@ -123,8 +123,8 @@ public class SseIntegrationTests
         {
             Id = "everything",
             Name = "Everything",
-            TransportType = "sse",
-            TransportOptions = new Dictionary<string, string>(),
+            TransportType = TransportTypes.Sse,
+            TransportOptions = [],
             Location = "http://localhost:3001/sse"
         };
 
@@ -193,8 +193,8 @@ public class SseIntegrationTests
         {
             Id = "test_server",
             Name = "In-memory Test Server",
-            TransportType = "sse",
-            TransportOptions = new Dictionary<string, string>(),
+            TransportType = TransportTypes.Sse,
+            TransportOptions = [],
             Location = "http://localhost:5000/sse"
         };
 
@@ -238,8 +238,8 @@ public class SseIntegrationTests
         {
             Id = "test_server",
             Name = "In-memory Test Server",
-            TransportType = "sse",
-            TransportOptions = new Dictionary<string, string>(),
+            TransportType = TransportTypes.Sse,
+            TransportOptions = [],
             Location = "http://localhost:5000/sse"
         };
 
@@ -255,11 +255,13 @@ public class SseIntegrationTests
         // Wait for SSE connection to be established
         await server.WaitForConnectionAsync(TimeSpan.FromSeconds(10));
 
-        var receivedNotification = new TaskCompletionSource<string>();
-        client.OnNotification("test/notification", async (args) =>
+        var receivedNotification = new TaskCompletionSource<string?>();
+        client.OnNotification("test/notification", (args) =>
             {
-                var msg = ((JsonElement)args.Params).GetProperty("message").GetString();
+                var msg = ((JsonElement?)args.Params)?.GetProperty("message").GetString();
                 receivedNotification.SetResult(msg);
+
+                return Task.CompletedTask;
             });
 
         // Act
@@ -291,8 +293,8 @@ public class SseIntegrationTests
         {
             Id = "test_server",
             Name = "In-memory Test Server",
-            TransportType = "sse",
-            TransportOptions = new Dictionary<string, string>(),
+            TransportType = TransportTypes.Sse,
+            TransportOptions = [],
             Location = "http://localhost:5000/sse"
         };
 
