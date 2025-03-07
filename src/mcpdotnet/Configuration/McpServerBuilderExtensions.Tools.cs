@@ -37,8 +37,7 @@ public static partial class McpServerBuilderExtensions
     /// <param name="toolTypes">Types with marked methods to add as tools to the server.</param>
     public static IMcpServerBuilder WithTools(this IMcpServerBuilder builder, params Type[] toolTypes)
     {
-        ArgumentNullException.ThrowIfNull(toolTypes);
-        if (toolTypes.Length == 0)
+        if (toolTypes is null || toolTypes.Length == 0)
             throw new ArgumentException("At least one tool type must be provided.", nameof(toolTypes));
 
         var tools = new List<Tool>();
