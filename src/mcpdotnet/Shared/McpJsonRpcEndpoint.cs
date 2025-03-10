@@ -33,11 +33,14 @@ internal abstract class McpJsonRpcEndpoint : IAsyncDisposable
     /// <param name="loggerFactory">The logger factory.</param>
     protected McpJsonRpcEndpoint(ITransport transport, ILoggerFactory loggerFactory)
     {
-        _transport = transport;
+        _transport = transport ?? throw new ArgumentNullException(nameof(transport));
         _pendingRequests = new();
         _notificationHandlers = new();
         _nextRequestId = 1;
         _jsonOptions = JsonSerializerOptionsExtensions.DefaultOptions;
+
+        if (loggerFactory is null)
+            throw new ArgumentNullException(nameof(loggerFactory));
         _logger = loggerFactory.CreateLogger<McpClient>();
     }
 
@@ -137,7 +140,9 @@ internal abstract class McpJsonRpcEndpoint : IAsyncDisposable
 
     private void HandleMessageWithId(IJsonRpcMessage message, IJsonRpcMessageWithId messageWithId)
     {
-        if (_pendingRequests.TryRemove(messageWithId.Id, out var tcs))
+        if (!messageWithId.Id.IsValid)
+            _logger.RequestHasInvalidId(EndpointName);
+        else if (_pendingRequests.TryRemove(messageWithId.Id, out var tcs))
         {
             _logger.ResponseMatchedPendingRequest(EndpointName, messageWithId.Id.ToString());
             tcs.TrySetResult(message);
