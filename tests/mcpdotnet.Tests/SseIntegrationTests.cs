@@ -56,13 +56,16 @@ public class SseIntegrationTests
     }
 
     [Fact]
+    [Trait("Execution", "Manual")]
     public async Task ConnectAndReceiveMessage_EverythingServerWithSse()
     {
         using var loggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
             builder.AddConsole()
             .SetMinimumLevel(LogLevel.Debug));
 
-        await using var fixture = new EverythingSseServerFixture();
+        int port = 3001;
+
+        await using var fixture = new EverythingSseServerFixture(port);
         await fixture.StartAsync();
 
         var defaultOptions = new McpClientOptions
@@ -76,7 +79,7 @@ public class SseIntegrationTests
             Name = "Everything",
             TransportType = TransportTypes.Sse,
             TransportOptions = [],
-            Location = "http://localhost:3001/sse"
+            Location = $"http://localhost:{port}/sse"
         };
 
         using var factory = new McpClientFactory(
@@ -94,6 +97,7 @@ public class SseIntegrationTests
     }
 
     [Fact]
+    [Trait("Execution", "Manual")]
     public async Task Sampling_Sse_EverythingServer()
     {
         // arrange
@@ -101,7 +105,9 @@ public class SseIntegrationTests
             builder.AddConsole()
             .SetMinimumLevel(LogLevel.Debug));
 
-        await using var fixture = new EverythingSseServerFixture();
+        int port = 3002;
+
+        await using var fixture = new EverythingSseServerFixture(port);
         await fixture.StartAsync();
 
         var defaultOptions = new McpClientOptions
@@ -123,7 +129,7 @@ public class SseIntegrationTests
             Name = "Everything",
             TransportType = TransportTypes.Sse,
             TransportOptions = [],
-            Location = "http://localhost:3001/sse"
+            Location = $"http://localhost:{port}/sse"
         };
 
         using var factory = new McpClientFactory(
