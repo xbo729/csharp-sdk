@@ -18,7 +18,7 @@ public class SseIntegrationTests
             builder.AddConsole()
             .SetMinimumLevel(LogLevel.Debug));
 
-        await using TestSseServer server = new(logger: loggerFactory.CreateLogger<TestSseServer>());
+        await using InMemoryTestSseServer server = new(logger: loggerFactory.CreateLogger<InMemoryTestSseServer>());
         await server.StartAsync();
 
 
@@ -164,7 +164,7 @@ public class SseIntegrationTests
             builder.AddConsole()
             .SetMinimumLevel(LogLevel.Debug));
 
-        await using TestSseServer server = new(logger: loggerFactory.CreateLogger<TestSseServer>());
+        await using InMemoryTestSseServer server = new(logger: loggerFactory.CreateLogger<InMemoryTestSseServer>());
         server.UseFullUrlForEndpointEvent = true;
         await server.StartAsync();
 
@@ -204,7 +204,7 @@ public class SseIntegrationTests
             builder.AddConsole()
             .SetMinimumLevel(LogLevel.Debug));
 
-        await using TestSseServer server = new(logger: loggerFactory.CreateLogger<TestSseServer>());
+        await using InMemoryTestSseServer server = new(logger: loggerFactory.CreateLogger<InMemoryTestSseServer>());
         await server.StartAsync();
 
 
@@ -253,7 +253,7 @@ public class SseIntegrationTests
             builder.AddConsole()
             .SetMinimumLevel(LogLevel.Debug));
 
-        await using TestSseServer server = new(logger: loggerFactory.CreateLogger<TestSseServer>());
+        await using InMemoryTestSseServer server = new(logger: loggerFactory.CreateLogger<InMemoryTestSseServer>());
         await server.StartAsync();
 
 
