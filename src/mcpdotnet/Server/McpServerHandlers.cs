@@ -45,12 +45,12 @@ public sealed class McpServerHandlers
     /// <summary>
     /// Gets or sets the handler for subscribe to resources messages.
     /// </summary>
-    public Func<RequestContext<string>, CancellationToken, Task>? SubscribeToResourcesHandler { get; set; }
+    public Func<RequestContext<SubscribeRequestParams>, CancellationToken, Task<EmptyResult>>? SubscribeToResourcesHandler { get; set; }
 
     /// <summary>
     /// Gets or sets the handler for unsubscribe from resources messages.
     /// </summary>
-    public Func<RequestContext<string>, CancellationToken, Task>? UnsubscribeFromResourcesHandler { get; set; }
+    public Func<RequestContext<UnsubscribeRequestParams>, CancellationToken, Task<EmptyResult>>? UnsubscribeFromResourcesHandler { get; set; }
 
     /// <summary>
     /// Overwrite any handlers in McpServerOptions with non-null handlers from this instance.
@@ -77,25 +77,29 @@ public sealed class McpServerHandlers
 
         ResourcesCapability? resourcesCapability = options.Capabilities?.Resources;
         if (ListResourcesHandler is not null ||
-            ReadResourceHandler is not null ||
-            SubscribeToResourcesHandler is not null ||
-            UnsubscribeFromResourcesHandler is not null)
+            ReadResourceHandler is not null)
         {
             resourcesCapability = resourcesCapability is null ?
                 new()
                 {
                     ListResourcesHandler = ListResourcesHandler,
-                    ReadResourceHandler = ReadResourceHandler,
-                    SubscribeToResourcesHandler = SubscribeToResourcesHandler,
-                    UnsubscribeFromResourcesHandler = UnsubscribeFromResourcesHandler,
+                    ReadResourceHandler = ReadResourceHandler
                 } :
                 resourcesCapability with
                 {
                     ListResourcesHandler = ListResourcesHandler ?? resourcesCapability.ListResourcesHandler,
-                    ReadResourceHandler = ReadResourceHandler ?? resourcesCapability.ReadResourceHandler,
+                    ReadResourceHandler = ReadResourceHandler ?? resourcesCapability.ReadResourceHandler
+                };
+
+            if (SubscribeToResourcesHandler is not null || UnsubscribeFromResourcesHandler is not null)
+            {
+                resourcesCapability = resourcesCapability with
+                {
                     SubscribeToResourcesHandler = SubscribeToResourcesHandler ?? resourcesCapability.SubscribeToResourcesHandler,
                     UnsubscribeFromResourcesHandler = UnsubscribeFromResourcesHandler ?? resourcesCapability.UnsubscribeFromResourcesHandler,
+                    Subscribe = true
                 };
+            }
         }
 
         ToolsCapability? toolsCapability = options.Capabilities?.Tools;

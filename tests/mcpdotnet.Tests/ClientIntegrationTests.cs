@@ -3,6 +3,7 @@ using McpDotNet.Configuration;
 using McpDotNet.Protocol.Messages;
 using McpDotNet.Protocol.Transport;
 using McpDotNet.Protocol.Types;
+using System.Text.Json;
 
 namespace McpDotNet.Tests;
 
@@ -206,6 +207,67 @@ public class ClientIntegrationTests : IClassFixture<ClientIntegrationTestFixture
         Assert.NotNull(result);
         Assert.Single(result.Contents);
         Assert.NotNull(result.Contents[0].Blob);
+    }
+
+    // Not supported by "everything" server version on npx
+    [Fact]
+    public async Task SubscribeResource_Stdio()
+    {
+        // arrange
+        var clientId = "test_server";
+
+        // act
+        int counter = 0;
+        await using var client = await _fixture.CreateClientAsync(clientId);
+        client.AddNotificationHandler(NotificationMethods.ResourceUpdatedNotification, (notification) =>
+        {
+            var notificationParams = JsonSerializer.Deserialize<ResourceUpdatedNotificationParams>(notification.Params!.ToString() ?? string.Empty);
+            ++counter;
+            return Task.CompletedTask;
+        });
+        await client.SubscribeToResourceAsync("test://static/resource/1", CancellationToken.None);
+
+        // notifications happen every 5 seconds, so we wait for 10 seconds to ensure we get at least one notification
+        await Task.Delay(10000);
+
+        // assert
+        Assert.True(counter > 0);
+    }
+
+    // Not supported by "everything" server version on npx
+    [Fact]
+    public async Task UnsubscribeResource_Stdio()
+    {
+        // arrange
+        var clientId = "test_server";
+
+        // act
+        int counter = 0;
+        await using var client = await _fixture.CreateClientAsync(clientId);
+        client.AddNotificationHandler(NotificationMethods.ResourceUpdatedNotification, (notification) =>
+        {
+            var notificationParams = JsonSerializer.Deserialize<ResourceUpdatedNotificationParams>(notification.Params!.ToString() ?? string.Empty);
+            ++counter;
+            return Task.CompletedTask;
+        });
+        await client.SubscribeToResourceAsync("test://static/resource/1", CancellationToken.None);
+
+        // notifications happen every 5 seconds, so we wait for 10 seconds to ensure we get at least one notification
+        await Task.Delay(10000);
+
+        // reset counter
+        int counterAfterSubscribe = counter;
+        
+        // unsubscribe
+        await client.UnsubscribeFromResourceAsync("test://static/resource/1", CancellationToken.None);
+        counter = 0;
+
+        // notifications happen every 5 seconds, so we wait for 10 seconds to ensure we would've gotten at least one notification
+        await Task.Delay(10000);
+
+        // assert
+        Assert.True(counterAfterSubscribe > 0);
+        Assert.Equal(0, counter);
     }
 
     [Theory]

@@ -27,8 +27,8 @@ public class McpServerHandlerTests
         handlers.ListResourcesHandler = (p, c) => Task.FromResult(new ListResourcesResult());
         handlers.ReadResourceHandler = (p, c) => Task.FromResult(new ReadResourceResult());
         handlers.GetCompletionHandler = (p, c) => Task.FromResult(new CompleteResult());
-        handlers.SubscribeToResourcesHandler = (s, c) => Task.CompletedTask;
-        handlers.UnsubscribeFromResourcesHandler = (s, c) => Task.CompletedTask;
+        handlers.SubscribeToResourcesHandler = (s, c) => Task.FromResult(new EmptyResult());
+        handlers.UnsubscribeFromResourcesHandler = (s, c) => Task.FromResult(new EmptyResult());
 
         Assert.NotNull(handlers.ListToolsHandler);
         Assert.NotNull(handlers.CallToolHandler);

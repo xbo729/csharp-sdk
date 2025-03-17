@@ -227,7 +227,7 @@ public static class McpClientExtensions
     {
         Throw.IfNull(client);
 
-        return client.SendRequestAsync<dynamic>(
+        return client.SendRequestAsync<EmptyResult>(
             CreateRequest("resources/subscribe", new() { ["uri"] = uri }),
             cancellationToken);
     }
@@ -242,7 +242,7 @@ public static class McpClientExtensions
     {
         Throw.IfNull(client);
 
-        return client.SendRequestAsync<dynamic>(
+        return client.SendRequestAsync<EmptyResult>(
             CreateRequest("resources/unsubscribe", new() { ["uri"] = uri }),
             cancellationToken);
     }
