@@ -57,7 +57,7 @@ public sealed class McpServerHandlers
     /// </summary>
     /// <param name="options"></param>
     /// <returns></returns>
-    internal McpServerOptions OverwriteWithSetHandlers(McpServerOptions options)
+    internal void OverwriteWithSetHandlers(McpServerOptions options)
     {
         PromptsCapability? promptsCapability = options.Capabilities?.Prompts;
         if (ListPromptsHandler is not null || GetPromptHandler is not null)
@@ -118,22 +118,20 @@ public sealed class McpServerHandlers
                 };
         }
 
-        return options with
-        {
-            GetCompletionHandler = GetCompletionHandler ?? options.GetCompletionHandler,
-            Capabilities = options.Capabilities is null ?
-                new()
-                {
-                    Prompts = promptsCapability,
-                    Resources = resourcesCapability,
-                    Tools = toolsCapability,
-                } :
-                options.Capabilities with
-                {
-                    Prompts = promptsCapability,
-                    Resources = resourcesCapability,
-                    Tools = toolsCapability,
-                },
-        };
+        options.Capabilities = options.Capabilities is null ?
+            new()
+            {
+                Prompts = promptsCapability,
+                Resources = resourcesCapability,
+                Tools = toolsCapability,
+            } :
+            options.Capabilities with
+            {
+                Prompts = promptsCapability,
+                Resources = resourcesCapability,
+                Tools = toolsCapability,
+            };
+
+        options.GetCompletionHandler = GetCompletionHandler ?? options.GetCompletionHandler;
     }
 }
