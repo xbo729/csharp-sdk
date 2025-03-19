@@ -1,6 +1,6 @@
-# MCP .NET SDK
+# MCP C# SDK
 
-The official .NET SDK for the [Model Context Protocol](https://modelcontextprotocol.io/), enabling .NET applications to connect to and interact with MCP clients and servers.
+The official C# SDK for the [Model Context Protocol](https://modelcontextprotocol.io/), enabling .NET applications to connect to and interact with MCP clients and servers.
 
 > [!NOTE]  
 > This repo is still in preview, breaking changes can be introduced without prior notice.
@@ -13,17 +13,6 @@ For more information about MCP:
 - [Official Documentation](https://modelcontextprotocol.io/)
 - [Protocol Specification](https://spec.modelcontextprotocol.io/)
 - [GitHub Organization](https://github.com/modelcontextprotocol)
-
-## Features
-
-- MCP implementation for .NET applications
-- Support for stdio and SSE transports (Clients)
-- Support for stdio transport (Servers)
-- Support for all MCP capabilities: Tool, Resource, Prompt, Sampling, Roots
-- Support for the Completion utility capability
-- Support for server instructions, pagination and notifications
-- Comprehensive logging support
-- Compatible with .NET 8.0 and later
 
 ## Getting Started (Client)
 
