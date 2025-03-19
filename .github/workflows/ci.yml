@@ -1,20 +1,20 @@
-name: .NET Build, Test and publish
+name: Build and Test
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main", "master" ]
-  release:    
-    types: [published,edited]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+    branches: ["main"]
 
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        configuration: [Debug, Release]
 
     steps: 
     - uses: actions/checkout@v4
@@ -25,10 +25,12 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: | 
-          8.0.x
           9.0.x
+          8.0.x
 
+    # Netfx testing on non-Windows requires mono
     - name: Setup Mono
+      if: runner.os == 'Linux'
       run: sudo apt-get install -y mono-devel
 
     - name: Set up Node.js
@@ -41,12 +43,9 @@ jobs:
 
     - name: Install dependencies for tests
       run: npm install @modelcontextprotocol/server-memory
-    
-    - name: Run Cake script
-      uses: cake-build/cake-action@v1
-      with:
-        verbosity: Diagnostic
-      env:
-        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY}}  
-        SONAR_LOGIN: ${{ secrets.SONAR_LOGIN }} 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+
+    - name: Build
+      run: dotnet build --configuration ${{ matrix.configuration }}
+
+    - name: Test
+      run: dotnet test --filter '(Execution!=Manual)' --no-build --configuration ${{ matrix.configuration }}

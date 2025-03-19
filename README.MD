@@ -1,16 +1,9 @@
-# mcpdotnet
-[![NuGet version](https://img.shields.io/nuget/v/mcpdotnet.svg)](https://www.nuget.org/packages/mcpdotnet/)
-![Build](https://github.com/PederHP/mcpdotnet/actions/workflows/ci.yml/badge.svg?branch=main)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+# MCP .NET SDK
 
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=PederHP_mcpdotnet&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=PederHP_mcpdotnet)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=PederHP_mcpdotnet&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=PederHP_mcpdotnet)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=PederHP_mcpdotnet&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=PederHP_mcpdotnet)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=PederHP_mcpdotnet&metric=bugs)](https://sonarcloud.io/summary/new_code?id=PederHP_mcpdotnet)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=PederHP_mcpdotnet&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=PederHP_mcpdotnet)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=PederHP_mcpdotnet&metric=coverage)](https://sonarcloud.io/summary/new_code?id=PederHP_mcpdotnet)
+The official .NET SDK for the [Model Context Protocol](https://modelcontextprotocol.io/), enabling .NET applications to connect to and interact with MCP clients and servers.
 
-A .NET implementation of the Model Context Protocol (MCP), enabling .NET applications to connect to and interact with MCP clients and servers.
+> [!NOTE]  
+> This repo is still in preview, breaking changes can be introduced without prior notice.
 
 ## About MCP
 
@@ -21,17 +14,6 @@ For more information about MCP:
 - [Protocol Specification](https://spec.modelcontextprotocol.io/)
 - [GitHub Organization](https://github.com/modelcontextprotocol)
 
-## Available Packages
-
-| Package | Description | Documentation |
-|---------|-------------|---------------|
-| [mcpdotnet](src/mcpdotnet) | Core MCP implementation for .NET | [README](README.md) |
-| [McpDotNet.Extensions.AI](src/McpDotNet.Extensions.AI) | Integration with Microsoft.Extensions.AI | [README](src/McpDotNet.Extensions.AI/README.md) |
-
-## Design Goals
-
-This library aims to provide a clean, specification-compliant implementation of the MCP protocol, with minimal additional abstraction. While transport implementations necessarily include additional code, they follow patterns established by the official SDKs where possible.
-
 ## Features
 
 - MCP implementation for .NET applications
@@ -40,17 +22,10 @@ This library aims to provide a clean, specification-compliant implementation of 
 - Support for all MCP capabilities: Tool, Resource, Prompt, Sampling, Roots
 - Support for the Completion utility capability
 - Support for server instructions, pagination and notifications
-- Async/await pattern throughout
 - Comprehensive logging support
 - Compatible with .NET 8.0 and later
 
 ## Getting Started (Client)
-
-To use mcpdotnet, first install it via NuGet:
-
-```powershell
-dotnet add package mcpdotnet
-```
 
 Then create a client and start using tools, or other capabilities, from the servers you configure:
 ```csharp
@@ -93,11 +68,11 @@ Note that you should pass CancellationToken objects suitable for your use case, 
 
 It is also highly recommended that you pass a proper LoggerFactory instance to the factory constructor, to enable logging of MCP client operations.
 
-You can find samples demonstrating how to use mcpdotnet with an LLM SDK in the [samples](samples) directory, and also refer to the [IntegrationTests](test/McpDotNet.IntegrationTests) project for more examples.
+You can find samples demonstrating how to use ModelContextProtocol with an LLM SDK in the [samples](samples) directory, and also refer to the [IntegrationTests](test/ModelContextProtocol.IntegrationTests) project for more examples.
 
 Additional examples and documentation will be added as in the near future.
 
-Remember you can connect to any MCP server, not just ones created using mcpdotnet. The protocol is designed to be server-agnostic, so you can use this library to connect to any compliant server.
+Remember you can connect to any MCP server, not just ones created using ModelContextProtocol. The protocol is designed to be server-agnostic, so you can use this library to connect to any compliant server.
 
 Tools can be exposed easily as `AIFunction` instances so that they are immediately usable with `IChatClient`s.
 ```csharp
@@ -122,8 +97,8 @@ the employed overload of `WithTools` examines the current assembly for classes w
 `McpTool` attribute as tools.)
 
 ```csharp
-using McpDotNet;
-using McpDotNet.Server;
+using ModelContextProtocol;
+using ModelContextProtocol.Server;
 using Microsoft.Extensions.Hosting;
 using System.ComponentModel;
 
@@ -144,9 +119,9 @@ public static class EchoTool
 
 More control is also available, with fine-grained control over configuring the server and how it should handle client requests. For example:
 ```csharp
-using McpDotNet.Protocol.Transport;
-using McpDotNet.Protocol.Types;
-using McpDotNet.Server;
+using ModelContextProtocol.Protocol.Transport;
+using ModelContextProtocol.Protocol.Types;
+using ModelContextProtocol.Server;
 using Microsoft.Extensions.Logging.Abstractions;
 
 McpServerOptions options = new()
@@ -208,18 +183,6 @@ await server.StartAsync();
 await Task.Delay(Timeout.Infinite);
 ```
 
-## Roadmap
-
-- Expand documentation with detailed guides for:
-  - Advanced scenarios (Sampling, Resources, Prompts)
-  - Transport configuration
-  - Error handling and recovery
-- Increase test coverage
-- Add additional samples and examples
-- Performance optimization
-- SSE server support
-- Authentication
-
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the [MIT License](LICENSE).

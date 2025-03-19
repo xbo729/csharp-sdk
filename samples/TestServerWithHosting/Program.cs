@@ -1,4 +1,4 @@
-﻿using McpDotNet;
+﻿using ModelContextProtocol;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 

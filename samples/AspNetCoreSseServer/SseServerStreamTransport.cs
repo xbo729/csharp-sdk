@@ -2,9 +2,9 @@
 using System.Net.ServerSentEvents;
 using System.Text.Json;
 using System.Threading.Channels;
-using McpDotNet.Protocol.Messages;
-using McpDotNet.Protocol.Transport;
-using McpDotNet.Utils.Json;
+using ModelContextProtocol.Protocol.Messages;
+using ModelContextProtocol.Protocol.Transport;
+using ModelContextProtocol.Utils.Json;
 
 namespace AspNetCoreSseServer;
 

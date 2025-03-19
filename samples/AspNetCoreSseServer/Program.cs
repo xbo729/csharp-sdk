@@ -1,4 +1,4 @@
-using McpDotNet;
+using ModelContextProtocol;
 using AspNetCoreSseServer;
 
 var builder = WebApplication.CreateBuilder(args);

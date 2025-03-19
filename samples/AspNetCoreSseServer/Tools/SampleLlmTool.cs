@@ -1,5 +1,5 @@
-﻿using McpDotNet.Protocol.Types;
-using McpDotNet.Server;
+﻿using ModelContextProtocol.Protocol.Types;
+using ModelContextProtocol.Server;
 using System.ComponentModel;
 
 namespace TestServerWithHosting.Tools;

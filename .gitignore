@@ -71,6 +71,3 @@ $RECYCLE.BIN/
 _NCrunch_*
 .*crunch*.local.xml
 nCrunchTemp_*
-/mcpdotnet.v3.ncrunchsolution
-/.NCrunch_mcpdotnet
-*.ncrunchproject

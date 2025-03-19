@@ -1,6 +1,6 @@
-﻿using McpDotNet.Client;
-using McpDotNet.Configuration;
-using McpDotNet.Protocol.Transport;
+﻿using ModelContextProtocol.Client;
+using ModelContextProtocol.Configuration;
+using ModelContextProtocol.Protocol.Transport;
 using Microsoft.Extensions.AI;
 using OpenAI;
 

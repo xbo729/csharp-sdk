@@ -2,11 +2,11 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace McpDotNet;
+namespace ModelContextProtocol;
 
 public static class McpToolExtensions
 {
-    public static IList<Anthropic.SDK.Common.Tool> ToAnthropicTools(this IEnumerable<McpDotNet.Protocol.Types.Tool> tools)
+    public static IList<Anthropic.SDK.Common.Tool> ToAnthropicTools(this IEnumerable<ModelContextProtocol.Protocol.Types.Tool> tools)
     {
         if (tools is null)
         {

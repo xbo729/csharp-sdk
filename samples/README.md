@@ -1,6 +1,6 @@
 # Samples
 
-This directory contains example projects demonstrating how to use mcpdotnet with different LLM SDKs and platforms.
+This directory contains example projects demonstrating how to use ModelContextProtocol with different LLM SDKs and platforms.
 
 ## Environment Setup
 
@@ -13,14 +13,14 @@ Before running the samples, you'll need to set up the following environment vari
 
 ### Anthropic Integration
 
-Located in `samples/anthropic`, this sample demonstrates integration with Anthropic's Claude API using mcpdotnet. The example shows how to:
+Located in `samples/anthropic`, this sample demonstrates integration with Anthropic's Claude API using ModelContextProtocol. The example shows how to:
 - Configure an MCP client for use with Anthropic
 - Map between MCP protocol types and Anthropic SDK types
 - Handle tool invocations and responses
 
 ### Microsoft.Extensions.AI Integration
 
-Located in `samples/microsoft.extensions.ai`, this sample shows how to use mcpdotnet with Microsoft's AI SDK. It demonstrates:
+Located in `samples/microsoft.extensions.ai`, this sample shows how to use ModelContextProtocol with Microsoft's AI SDK. It demonstrates:
 - Setting up an MCP client with MEAI
 - Mapping MCP tools to MEAI function calls
 - Handling streaming responses and tool invocations
@@ -38,4 +38,4 @@ The complexity of this mapping varies depending on how closely the SDK's design 
 3. Navigate to the desired sample directory
 4. Run `dotnet run` to execute the sample
 
-For more detailed examples of mcpdotnet usage, you can also refer to the integration tests in the `tests/McpDotNet.IntegrationTests` project.
+For more detailed examples of ModelContextProtocol usage, you can also refer to the integration tests in the `tests/ModelContextProtocol.IntegrationTests` project.

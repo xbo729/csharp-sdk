@@ -1,6 +1,6 @@
-﻿using McpDotNet.Protocol.Messages;
-using McpDotNet.Server;
-using McpDotNet.Utils.Json;
+﻿using ModelContextProtocol.Protocol.Messages;
+using ModelContextProtocol.Server;
+using ModelContextProtocol.Utils.Json;
 using Microsoft.Extensions.Options;
 
 namespace AspNetCoreSseServer;
