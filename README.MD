@@ -1,6 +1,6 @@
 # MCP C# SDK
 
-The official C# SDK for the [Model Context Protocol](https://modelcontextprotocol.io/), enabling .NET applications to connect to and interact with MCP clients and servers.
+The official C# SDK for the [Model Context Protocol](https://modelcontextprotocol.io/), enabling .NET applications, services, and libraries to implement and interact with MCP clients and servers.
 
 > [!NOTE]  
 > This repo is still in preview, breaking changes can be introduced without prior notice.
@@ -16,7 +16,9 @@ For more information about MCP:
 
 ## Getting Started (Client)
 
-Then create a client and start using tools, or other capabilities, from the servers you configure:
+To get started writing a client, the `McpClientFactory.CreateAsync` method is used to instantiate and connect an `IMcpClient`
+to a server, with details about the client and server specified in `McpClientOptions` and `McpServerConfig` objects.
+Once you have an `IMcpClient`, you can interact with it, such as to enumerate all available tools and invoke tools.
 ```csharp
 McpClientOptions options = new()
 {
@@ -53,15 +55,9 @@ var result = await client.CallToolAsync(
 Console.WriteLine(result.Content.First(c => c.Type == "text").Text);
 ```
 
-Note that you should pass CancellationToken objects suitable for your use case, to enable proper error handling, timeouts, etc. This example also does not paginate the tools list, which may be necessary for large tool sets. See the IntegrationTests project for an example of pagination, as well as examples of how to handle Prompts and Resources.
+You can find samples demonstrating how to use ModelContextProtocol with an LLM SDK in the [samples](samples) directory, and also refer to the [IntegrationTests](test/ModelContextProtocol.IntegrationTests) project for more examples. Additional examples and documentation will be added as in the near future.
 
-It is also highly recommended that you pass a proper LoggerFactory instance to the factory constructor, to enable logging of MCP client operations.
-
-You can find samples demonstrating how to use ModelContextProtocol with an LLM SDK in the [samples](samples) directory, and also refer to the [IntegrationTests](test/ModelContextProtocol.IntegrationTests) project for more examples.
-
-Additional examples and documentation will be added as in the near future.
-
-Remember you can connect to any MCP server, not just ones created using ModelContextProtocol. The protocol is designed to be server-agnostic, so you can use this library to connect to any compliant server.
+Clients can connect to any MCP server, not just ones created using this library. The protocol is designed to be server-agnostic, so you can use this library to connect to any compliant server.
 
 Tools can be exposed easily as `AIFunction` instances so that they are immediately usable with `IChatClient`s.
 ```csharp
