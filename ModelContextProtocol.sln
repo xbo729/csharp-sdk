@@ -24,12 +24,18 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCoreSseServer", "samples\AspNetCoreSseServer\AspNetCoreSseServer.csproj", "{B6F42305-423F-56FF-090F-B7263547F924}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A2F1F52A-9107-4BF8-8C3F-2F6670E7D0AD}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Build.props = src\Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B6FB2B28-D5DE-4654-BE9A-45E305DE4852}"
 	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
 		global.json = global.json
 		LICENSE = LICENSE
+		logo.png = logo.png
 		README.MD = README.MD
+		version.json = version.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{1288ADA5-1BF1-4A7F-A33E-9EA29097AA40}"
