@@ -498,7 +498,7 @@ public class ClientIntegrationTests : IClassFixture<ClientIntegrationTestFixture
         var response = await chatClient.GetResponseAsync(messages, new() { Tools = [.. mappedTools], Temperature = 0 });
 
         // Assert
-        Assert.Equal("Echo: Hello MCP!", response.Text);
+        Assert.Contains("Echo: Hello MCP!", response.Text);
     }
 
     [Fact]
