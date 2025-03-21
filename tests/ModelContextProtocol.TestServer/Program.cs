@@ -39,6 +39,7 @@ internal static class Program
                 Tools = ConfigureTools(),
                 Resources = ConfigureResources(),
                 Prompts = ConfigurePrompts(),
+                Logging = ConfigureLogging()
             },
             ProtocolVersion = "2024-11-05",
             ServerInstructions = "This is a test server with only stub functionality",
@@ -54,10 +55,35 @@ internal static class Program
 
         Log.Logger.Information("Server started.");
 
+        // everything server sends random log level messages every 15 seconds
+        int loggingSeconds = 0;
+        Random random = Random.Shared;
+        var loggingLevels = Enum.GetValues<LoggingLevel>().ToList();
+
         // Run until process is stopped by the client (parent process)
         while (true)
         {
             await Task.Delay(5000);
+            if (_minimumLoggingLevel is not null)
+            {
+                loggingSeconds += 5;
+
+                // Send random log messages every 15 seconds
+                if (loggingSeconds >= 15)
+                {
+                    var logLevelIndex = random.Next(loggingLevels.Count);
+                    var logLevel = loggingLevels[logLevelIndex];
+                    await server.SendMessageAsync(new JsonRpcNotification()
+                    {
+                        Method = NotificationMethods.LoggingMessageNotification,
+                        Params = new LoggingMessageNotificationParams
+                        {
+                            Level = logLevel,
+                            Data = JsonSerializer.Deserialize<JsonElement>("\"Random log message\"")
+                        }
+                    });
+                }
+            }
 
             // Snapshot the subscribed resources, rather than locking while sending notifications
             List<string> resources;
@@ -262,6 +288,26 @@ internal static class Program
                 {
                     Messages = messages
                 });
+            }
+        };
+    }
+
+    private static LoggingLevel? _minimumLoggingLevel = null;
+
+    private static LoggingCapability ConfigureLogging()
+    {
+        return new()
+        {
+            SetLoggingLevelHandler = (request, cancellationToken) =>
+            {
+                if (request.Params?.Level is null)
+                {
+                    throw new McpServerException("Missing required argument 'level'");
+                }
+
+                _minimumLoggingLevel = request.Params.Level;
+
+                return Task.FromResult(new EmptyResult());
             }
         };
     }
