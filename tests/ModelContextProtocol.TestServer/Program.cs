@@ -327,7 +327,7 @@ internal static class Program
                     Name = $"Resource {i + 1}",
                     MimeType = "text/plain"
                 });
-                resourceContents.Add(new ResourceContents()
+                resourceContents.Add(new TextResourceContents()
                 {
                     Uri = uri,
                     MimeType = "text/plain",
@@ -343,7 +343,7 @@ internal static class Program
                     Name = $"Resource {i + 1}",
                     MimeType = "application/octet-stream"
                 });
-                resourceContents.Add(new ResourceContents()
+                resourceContents.Add(new BlobResourceContents()
                 {
                     Uri = uri,
                     MimeType = "application/octet-stream",
@@ -417,7 +417,7 @@ internal static class Program
                     return Task.FromResult(new ReadResourceResult()
                     {
                         Contents = [
-                            new ResourceContents()
+                            new TextResourceContents()
                             {
                                 Uri = request.Params.Uri,
                                 MimeType = "text/plain",
