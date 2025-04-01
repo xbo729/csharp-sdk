@@ -635,4 +635,47 @@ public class McpServerTests : LoggedTest
         public Task RunAsync(CancellationToken cancellationToken = default) =>
             throw new NotImplementedException();
     }
+
+    [Fact]
+    public async Task NotifyProgress_Should_Be_Handled()
+    {
+        await using TestServerTransport transport = new();
+        var options = CreateOptions();
+
+        var notificationReceived = new TaskCompletionSource<JsonRpcNotification>();
+
+        var server = McpServerFactory.Create(transport, options, LoggerFactory, _serviceProvider);
+        server.AddNotificationHandler(NotificationMethods.ProgressNotification, notification =>
+        {
+            notificationReceived.SetResult(notification);
+            return Task.CompletedTask;
+        });
+
+        Task serverTask = server.RunAsync(TestContext.Current.CancellationToken);
+
+        await transport.SendMessageAsync(new JsonRpcNotification
+        {
+            Method = NotificationMethods.ProgressNotification,
+            Params = new ProgressNotification()
+            {
+                ProgressToken = new("abc"),
+                Progress = new()
+                {
+                    Progress = 50,
+                    Total = 100,
+                    Message = "Progress message",
+                },
+            },
+        }, TestContext.Current.CancellationToken);
+
+        var notification = await notificationReceived.Task;
+        var progress = (ProgressNotification)notification.Params!;
+        Assert.Equal("\"abc\"", progress.ProgressToken.ToString());
+        Assert.Equal(50, progress.Progress.Progress);
+        Assert.Equal(100, progress.Progress.Total);
+        Assert.Equal("Progress message", progress.Progress.Message);
+
+        await server.DisposeAsync();
+        await serverTask;
+    }
 }
