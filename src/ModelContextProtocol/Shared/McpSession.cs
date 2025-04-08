@@ -296,6 +296,24 @@ internal sealed class McpSession : IDisposable
         }, cancellationToken).ConfigureAwait(false);
     }
 
+    private CancellationTokenRegistration RegisterCancellation(CancellationToken cancellationToken, RequestId requestId)
+    {
+        if (!cancellationToken.CanBeCanceled)
+        {
+            return default;
+        }
+
+        return cancellationToken.Register(static objState =>
+        {
+            var state = (Tuple<McpSession, RequestId>)objState!;
+            _ = state.Item1.SendMessageAsync(new JsonRpcNotification
+            {
+                Method = NotificationMethods.CancelledNotification,
+                Params = JsonSerializer.SerializeToNode(new CancelledNotification { RequestId = state.Item2 }, McpJsonUtilities.JsonContext.Default.CancelledNotification)
+            });
+        }, Tuple.Create(this, requestId));
+    }
+
     public IAsyncDisposable RegisterNotificationHandler(string method, Func<JsonRpcNotification, CancellationToken, Task> handler)
     {
         Throw.IfNullOrWhiteSpace(method);
@@ -319,6 +337,8 @@ internal sealed class McpSession : IDisposable
             _logger.EndpointNotConnected(EndpointName);
             throw new McpException("Transport is not connected");
         }
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         Histogram<double> durationMetric = _isServer ? s_serverRequestDuration : s_clientRequestDuration;
         string method = request.Method;
@@ -357,9 +377,16 @@ internal sealed class McpSession : IDisposable
             _logger.SendingRequest(EndpointName, request.Method);
 
             await _transport.SendMessageAsync(request, cancellationToken).ConfigureAwait(false);
-
             _logger.RequestSentAwaitingResponse(EndpointName, request.Method, request.Id.ToString());
-            var response = await tcs.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+
+            // Now that the request has been sent, register for cancellation. If we registered before,
+            // a cancellation request could arrive before the server knew about that request ID, in which
+            // case the server could ignore it.
+            IJsonRpcMessage? response;
+            using (var registration = RegisterCancellation(cancellationToken, request.Id))
+            {
+                response = await tcs.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+            }
 
             if (response is JsonRpcError error)
             {
@@ -399,6 +426,8 @@ internal sealed class McpSession : IDisposable
             _logger.ClientNotConnected(EndpointName);
             throw new McpException("Transport is not connected");
         }
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         Histogram<double> durationMetric = _isServer ? s_serverRequestDuration : s_clientRequestDuration;
         string method = GetMethodName(message);
