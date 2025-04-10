@@ -8,6 +8,7 @@ using ModelContextProtocol.Server;
 using ModelContextProtocol.Utils;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Text.Json;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -24,6 +25,7 @@ public static partial class McpServerBuilderExtensions
     /// <summary>Adds <see cref="McpServerTool"/> instances to the service collection backing <paramref name="builder"/>.</summary>
     /// <typeparam name="TToolType">The tool type.</typeparam>
     /// <param name="builder">The builder instance.</param>
+    /// <param name="serializerOptions">The serializer options governing tool parameter marshalling.</param>
     /// <returns>The builder provided in <paramref name="builder"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="builder"/> is <see langword="null"/>.</exception>
     /// <remarks>
@@ -35,7 +37,8 @@ public static partial class McpServerBuilderExtensions
         DynamicallyAccessedMemberTypes.PublicMethods |
         DynamicallyAccessedMemberTypes.NonPublicMethods |
         DynamicallyAccessedMemberTypes.PublicConstructors)] TToolType>(
-        this IMcpServerBuilder builder)
+        this IMcpServerBuilder builder,
+        JsonSerializerOptions? serializerOptions = null)
     {
         Throw.IfNull(builder);
 
@@ -44,8 +47,8 @@ public static partial class McpServerBuilderExtensions
             if (toolMethod.GetCustomAttribute<McpServerToolAttribute>() is not null)
             {
                 builder.Services.AddSingleton((Func<IServiceProvider, McpServerTool>)(toolMethod.IsStatic ?
-                    services => McpServerTool.Create(toolMethod, options: new() { Services = services }) :
-                    services => McpServerTool.Create(toolMethod, typeof(TToolType), new() { Services = services })));
+                    services => McpServerTool.Create(toolMethod, options: new() { Services = services, SerializerOptions = serializerOptions }) :
+                    services => McpServerTool.Create(toolMethod, typeof(TToolType), new() { Services = services, SerializerOptions = serializerOptions })));
             }
         }
 
@@ -55,6 +58,7 @@ public static partial class McpServerBuilderExtensions
     /// <summary>Adds <see cref="McpServerTool"/> instances to the service collection backing <paramref name="builder"/>.</summary>
     /// <param name="builder">The builder instance.</param>
     /// <param name="toolTypes">Types with marked methods to add as tools to the server.</param>
+    /// <param name="serializerOptions">The serializer options governing tool parameter marshalling.</param>
     /// <returns>The builder provided in <paramref name="builder"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="builder"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="toolTypes"/> is <see langword="null"/>.</exception>
@@ -64,7 +68,7 @@ public static partial class McpServerBuilderExtensions
     /// instance for each. For instance methods, an instance will be constructed for each invocation of the tool.
     /// </remarks>
     [RequiresUnreferencedCode(WithToolsRequiresUnreferencedCodeMessage)]
-    public static IMcpServerBuilder WithTools(this IMcpServerBuilder builder, params IEnumerable<Type> toolTypes)
+    public static IMcpServerBuilder WithTools(this IMcpServerBuilder builder, IEnumerable<Type> toolTypes, JsonSerializerOptions? serializerOptions = null)
     {
         Throw.IfNull(builder);
         Throw.IfNull(toolTypes);
@@ -78,8 +82,8 @@ public static partial class McpServerBuilderExtensions
                     if (toolMethod.GetCustomAttribute<McpServerToolAttribute>() is not null)
                     {
                         builder.Services.AddSingleton((Func<IServiceProvider, McpServerTool>)(toolMethod.IsStatic ?
-                            services => McpServerTool.Create(toolMethod, options: new() { Services = services }) :
-                            services => McpServerTool.Create(toolMethod, toolType, new() { Services = services })));
+                            services => McpServerTool.Create(toolMethod, options: new() { Services = services , SerializerOptions = serializerOptions }) :
+                            services => McpServerTool.Create(toolMethod, toolType, new() { Services = services , SerializerOptions = serializerOptions })));
                     }
                 }
             }
@@ -92,6 +96,7 @@ public static partial class McpServerBuilderExtensions
     /// Adds types marked with the <see cref="McpServerToolTypeAttribute"/> attribute from the given assembly as tools to the server.
     /// </summary>
     /// <param name="builder">The builder instance.</param>
+    /// <param name="serializerOptions">The serializer options governing tool parameter marshalling.</param>
     /// <param name="toolAssembly">The assembly to load the types from. If <see langword="null"/>, the calling assembly will be used.</param>
     /// <returns>The builder provided in <paramref name="builder"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="builder"/> is <see langword="null"/>.</exception>
@@ -116,7 +121,7 @@ public static partial class McpServerBuilderExtensions
     /// </para>
     /// </remarks>
     [RequiresUnreferencedCode(WithToolsRequiresUnreferencedCodeMessage)]
-    public static IMcpServerBuilder WithToolsFromAssembly(this IMcpServerBuilder builder, Assembly? toolAssembly = null)
+    public static IMcpServerBuilder WithToolsFromAssembly(this IMcpServerBuilder builder, Assembly? toolAssembly = null, JsonSerializerOptions? serializerOptions = null)
     {
         Throw.IfNull(builder);
 
@@ -125,7 +130,8 @@ public static partial class McpServerBuilderExtensions
         return builder.WithTools(
             from t in toolAssembly.GetTypes()
             where t.GetCustomAttribute<McpServerToolTypeAttribute>() is not null
-            select t);
+            select t,
+            serializerOptions);
     }
     #endregion
 
