@@ -8,6 +8,11 @@ using Microsoft.Extensions.Logging;
 using ModelContextProtocol;
 using ModelContextProtocol.Protocol.Types;
 using ModelContextProtocol.Server;
+using OpenTelemetry;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
@@ -185,6 +190,13 @@ builder.Services
 
         return new EmptyResult();
     });
+
+ResourceBuilder resource = ResourceBuilder.CreateDefault().AddService("everything-server");
+builder.Services.AddOpenTelemetry()
+    .WithTracing(b => b.AddSource("*").AddHttpClientInstrumentation().SetResourceBuilder(resource))
+    .WithMetrics(b => b.AddMeter("*").AddHttpClientInstrumentation().SetResourceBuilder(resource))
+    .WithLogging(b => b.SetResourceBuilder(resource))
+    .UseOtlpExporter();
 
 builder.Services.AddSingleton(subscriptions);
 builder.Services.AddHostedService<SubscriptionMessageSender>();
