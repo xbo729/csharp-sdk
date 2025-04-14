@@ -5,6 +5,7 @@ using OpenTelemetry;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddMcpServer()
+    .WithHttpTransport()
     .WithTools<EchoTool>()
     .WithTools<SampleLlmTool>();
 
