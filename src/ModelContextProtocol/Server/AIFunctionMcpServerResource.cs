@@ -332,9 +332,6 @@ internal sealed class AIFunctionMcpServerResource : McpServerResource
     }
 
     /// <inheritdoc />
-    public override string ToString() => AIFunction.ToString();
-
-    /// <inheritdoc />
     public override ResourceTemplate ProtocolResourceTemplate { get; }
 
     /// <inheritdoc />
