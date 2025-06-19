@@ -30,6 +30,9 @@ internal sealed partial class StreamableHttpClientSessionTransport : TransportBa
     private string? _negotiatedProtocolVersion;
     private Task? _getReceiveTask;
 
+    private readonly SemaphoreSlim _disposeLock = new(1, 1);
+    private bool _disposed;
+
     public StreamableHttpClientSessionTransport(
         string endpointName,
         SseClientTransportOptions transportOptions,
@@ -138,12 +141,26 @@ internal sealed partial class StreamableHttpClientSessionTransport : TransportBa
 
     public override async ValueTask DisposeAsync()
     {
+        using var _ = await _disposeLock.LockAsync().ConfigureAwait(false);
+
+        if (_disposed)
+        {
+            return;
+        }
+        _disposed = true;
+
         try
         {
             await _connectionCts.CancelAsync().ConfigureAwait(false);
 
             try
             {
+                // Send DELETE request to terminate the session. Only send if we have a session ID, per MCP spec.
+                if (!string.IsNullOrEmpty(SessionId))
+                {
+                    await SendDeleteRequest();
+                }
+
                 if (_getReceiveTask != null)
                 {
                     await _getReceiveTask.ConfigureAwait(false);
@@ -236,6 +253,22 @@ internal sealed partial class StreamableHttpClientSessionTransport : TransportBa
         return null;
     }
 
+    private async Task SendDeleteRequest()
+    {
+        using var deleteRequest = new HttpRequestMessage(HttpMethod.Delete, _options.Endpoint);
+        CopyAdditionalHeaders(deleteRequest.Headers, _options.AdditionalHeaders, SessionId, _negotiatedProtocolVersion);
+
+        try
+        {
+            // Do not validate we get a successful status code, because server support for the DELETE request is optional
+            (await _httpClient.SendAsync(deleteRequest, CancellationToken.None).ConfigureAwait(false)).Dispose();
+        }
+        catch (Exception ex)
+        {
+            LogTransportShutdownFailed(Name, ex);
+        }
+    }
+
     private void LogJsonException(JsonException ex, string data)
     {
         if (_logger.IsEnabled(LogLevel.Trace))
@@ -251,8 +284,8 @@ internal sealed partial class StreamableHttpClientSessionTransport : TransportBa
     internal static void CopyAdditionalHeaders(
         HttpRequestHeaders headers,
         IDictionary<string, string>? additionalHeaders,
-        string? sessionId = null,
-        string? protocolVersion = null)
+        string? sessionId,
+        string? protocolVersion)
     {
         if (sessionId is not null)
         {
