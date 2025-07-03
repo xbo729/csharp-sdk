@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.AI;
+using ModelContextProtocol.Authentication;
 using ModelContextProtocol.Protocol;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
@@ -153,6 +154,12 @@ public static partial class McpJsonUtilities
     // Other MCP Types
     [JsonSerializable(typeof(IReadOnlyDictionary<string, object>))]
     [JsonSerializable(typeof(ProgressToken))]
+
+    [JsonSerializable(typeof(ProtectedResourceMetadata))]
+    [JsonSerializable(typeof(AuthorizationServerMetadata))]
+    [JsonSerializable(typeof(TokenContainer))]
+    [JsonSerializable(typeof(DynamicClientRegistrationRequest))]
+    [JsonSerializable(typeof(DynamicClientRegistrationResponse))]
 
     // Primitive types for use in consuming AIFunctions
     [JsonSerializable(typeof(string))]
