@@ -156,7 +156,7 @@ public sealed partial class StdioClientTransport : IClientTransport
             // up the encoding from Console.InputEncoding. As such, when not targeting .NET Core,
             // we temporarily change Console.InputEncoding to no-BOM UTF-8 around the Process.Start
             // call, to ensure it picks up the correct encoding.
-#if !NET
+
             Encoding originalInputEncoding = Console.InputEncoding;
             if (HasConsole())
             {
@@ -169,7 +169,7 @@ public sealed partial class StdioClientTransport : IClientTransport
                     Console.InputEncoding = originalInputEncoding;
                 }
             }
-#endif
+
             processStarted = process.Start();
 
             if (!processStarted)
